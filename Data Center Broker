@@ -1,0 +1,337 @@
+protected  ArrayList<Cloudlet> proposedmethod() {
+		
+	
+		ArrayList<Cloudlet> clist = new ArrayList<Cloudlet>();
+	//	ArrayList<Cloudlet> newlist = new ArrayList<Cloudlet>();
+		ArrayList<Vm> vlist = new ArrayList<Vm>();
+		int k1=0;
+		//System.out.println("checkpoint1");
+		
+		for (Cloudlet cloudlet : getCloudletList()) {
+		
+    		clist.add(cloudlet);
+    		System.out.println("clist:" +clist.get(k1).getCloudletId());
+    		
+    		k1++;
+		}
+		//k=0;
+		for (Vm vm : getVmList()) {
+    		vlist.add(vm);
+    		//System.out.println("vlist:" +vlist.get(k).getId());
+    		//k++;
+		}
+		ArrayList<Cloudlet> maxminList = new ArrayList<Cloudlet>();
+		int reqTasks= clist.size();
+		int reqVms= vlist.size();
+		//int k=0;
+		
+		double completionTime[][] = new double[reqTasks][reqTasks];
+		double execTime[][] = new double[reqTasks][reqTasks];
+		double timer =0.0;
+		double deadline[]=new double[reqTasks];
+		
+		double readyTime1=0;
+		double readyTime2=0;
+		for(int i=0; i<reqTasks; i++){
+			
+			for(int j=0; j<reqVms; j++){
+					double exec;
+					exec = getExecTime(clist.get(i), vlist.get(j));
+				/*	if(j==0){
+						System.out.print(" Ready Time1 "+readyTime1+"\n");
+					
+					timer=exec+readyTime1;
+					completionTime[i][j]= timer;
+					readyTime1+=exec;
+					}
+					else {
+						System.out.print(" Ready Time2 "+readyTime2+"\n");
+						
+						timer=exec+readyTime2;
+						completionTime[i][j]= timer;
+						readyTime2+=exec;
+					}
+					
+				
+				
+				*/
+				
+				timer = getExecTime(clist.get(i), vlist.get(j));
+				execTime[i][j]= timer;
+			/*	
+				System.out.print("Vm "+j);
+				System.out.print(" Task "+i);
+				
+				System.out.print(" Completion "+completionTime[i][j]+" ");
+				System.out.print(" Execution "+execTime[i][j]+" ");
+				*/
+				
+			}
+			System.out.println("");
+			
+		}
+		
+		double time[]=new double[reqTasks];
+		double completiontime[]=new double[reqTasks];
+		int k=8;
+		double pert[]=new double[reqTasks];
+		
+		for(int i=0;i<reqTasks;i++) {
+			double minimum= Double.MAX_VALUE;
+			double maximum=0;
+			int pos=-1;
+			for(int j=0;j<reqVms;j++) {
+				if(execTime[i][j]<minimum) {
+					minimum=execTime[i][j];
+					pos=i;
+				}
+				
+			}
+		/*	for(int j=0;j<reqVms;j++) {
+				if(completionTime[i][j]>maximum) {
+					maximum=completionTime[i][j];
+					pos=i;
+				}
+				
+			}*/
+			pert[i]=(minimum+maximum)/2;
+			time[i]= minimum;
+			completiontime[i]=maximum;
+			Cloudlet cloudlet;
+			deadline[i]=(4*(clist.get(i).getCloudletLength()/1000))+(clist.get(i).getArrivaltime());
+			System.out.println("Submission Time ");
+			System.out.println(clist.get(i).getArrivaltime());
+			System.out.println("DeadLine ");
+			System.out.println(deadline[i]);
+			//clist.get(i).setDeadline(deadline[i]);
+			
+			
+		}
+		
+		
+		int n=clist.size();
+		int vmlist=0;
+		double totalength=0;
+		int p=0;
+		double totalpert=0;
+		double totalexecTime=0;
+		double totalcompletionTime=0;
+		for(Cloudlet cloudlet:getCloudletList()) {
+			//totalpert=totalpert+pert[cloudlet.getCloudletId()];
+			totalength+=cloudlet.getCloudletLength();
+			totalexecTime+=time[cloudlet.getCloudletId()];
+			//totalcompletionTime+=completiontime[cloudlet.getCloudletId()];
+			p++;
+		}
+		double avglength=(totalength/n);
+		double avgpert=(totalpert/n);
+		double avgexec=(totalexecTime/n);
+		double avgcompletion=(totalcompletionTime/n);
+		
+		System.out.println("avgexec "+avgexec);
+		System.out.println("avgcompletion "+avgcompletion );
+		
+		ArrayList<Cloudlet> shortlist=new ArrayList<Cloudlet>();
+		ArrayList<Cloudlet> largelist=new ArrayList<Cloudlet>();
+
+		/*//original based on length
+		
+		for(Cloudlet cloudlet:getCloudletList()) {
+			int y=cloudlet.getCloudletId();
+			
+			if(cloudlet.getCloudletLength()<avglength) {
+				cloudlet.setDeadline(deadline[cloudlet.getCloudletId()]);
+				shortlist.add(cloudlet);
+			}
+			else
+			{
+				cloudlet.setDeadline(deadline[cloudlet.getCloudletId()]);
+				largelist.add(cloudlet);
+			}
+		}
+		*/
+		
+		int critical_time=0;
+		int size=clist.size();
+		int st=0;
+		//avg execution
+		
+		
+		for(Cloudlet cloudleta:getCloudletList()) {
+			int y=cloudleta.getCloudletId();
+			
+			double exec=cloudleta.getCloudletLength()/1000;
+		
+			
+			if((cloudleta.getCloudletLength()/1000)<avgexec ) {
+				
+				//cloudleta.setDeadline(deadline[cloudleta.getCloudletId()]);
+				shortlist.add(cloudleta);
+				
+			}
+			else
+			{
+				//cloudleta.setDeadline(deadline[cloudleta.getCloudletId()]);
+				largelist.add(cloudleta);
+			}
+		}
+		
+		/*Comparator<Cloudlet> arrivalcomparator = Comparator.comparingDouble(Cloudlet::getArrivaltime);
+
+        Comparator<Cloudlet> deadlinecomparator = Comparator.comparing(Cloudlet::getDeadline);
+
+        Comparator<Cloudlet> multipleFieldsComparator = arrivalcomparator.thenComparing(deadlinecomparator);
+
+        Collections.sort(shortlist, multipleFieldsComparator);
+        */
+        
+	Cloudlet[] list2 = shortlist.toArray(new Cloudlet[shortlist.size()]);
+		
+		//System.out.println("size :"+list.size());
+		
+		Cloudlet temp= null;
+	
+        
+		int tn = shortlist.size();
+		
+		System.out.println("Shortlist size "+tn);
+        
+		
+		for(int i=0; i < tn; i++){
+            for(int j=1; j < (tn-i); j++){
+                   
+                    if(list2[j-1].getDeadline()> list2[j].getDeadline()){
+                            //swap the elements!
+                            //swap(list2[j-1], list2[j]);
+                    		temp= list2[j-1];
+                    		list2[j-1]= list2[j];
+                    		list2[j]=temp;
+                    		           }
+                 // printNumbers(list2);
+            }
+            
+		}
+		
+	/*	
+		for(int i=0; i < tn; i++){
+            for(int j=1; j < (tn-i); j++){
+                   
+                    if(list2[j-1].getArrivaltime()> list2[j].getArrivaltime()){
+                            //swap the elements!
+                            //swap(list2[j-1], list2[j]);
+                    		temp= list2[j-1];
+                    		list2[j-1]= list2[j];
+                    		list2[j]=temp;
+                    		           }
+                 // printNumbers(list2);
+            }
+            
+		}
+		*/
+		ArrayList<Cloudlet> sortListshort = new ArrayList<Cloudlet>();
+		ArrayList<Cloudlet> sortListnew = new ArrayList<Cloudlet>();
+		
+		for(int i=0;i<list2.length;i++){
+			sortListshort.add(list2[i]);
+			System.out.println(" Deadline Length short "+list2[i].getDeadline());
+		}
+		
+		
+		
+		
+Cloudlet[] list3 = largelist.toArray(new Cloudlet[largelist.size()]);
+		
+		//System.out.println("size :"+list.size());
+		
+		//Cloudlet temp= null;
+		
+		
+		int ln = largelist.size();
+		System.out.println("Largelist size "+ln);
+        
+		//original
+		for(int i=0; i < ln; i++){
+            for(int j=1; j < (ln-i); j++){
+                   
+                    if(list3[j-1].getCloudletLength()<list3[j].getCloudletLength() ){
+                            //swap the elements!
+                            //swap(list2[j-1], list2[j]);
+                    		temp= list3[j-1];
+                    		list3[j-1]= list3[j];
+                    		list3[j]=temp;
+                    }
+                 // printNumbers(list2);
+            }
+		}
+		
+		//original
+	/*			for(int i=0; i < ln; i++){
+		            for(int j=1; j < (ln-i); j++){
+		                   
+		                    if(list3[j-1].getArrivaltime()<list3[j].getArrivaltime() ){
+		                            //swap the elements!
+		                            //swap(list2[j-1], list2[j]);
+		                    		temp= list3[j-1];
+		                    		list3[j-1]= list3[j];
+		                    		list3[j]=temp;
+		                    }
+		                 // printNumbers(list2);
+		            }
+				}
+				*/
+		
+		
+		ArrayList<Cloudlet> sortListlarge = new ArrayList<Cloudlet>();
+		
+
+		for(int i=0;i<list3.length;i++){
+			sortListlarge.add(list3[i]);
+			System.out.println(" Length large "+list3[i].getCloudletId());
+		}
+		
+		
+		
+		
+		ArrayList<Cloudlet> newList=new ArrayList<Cloudlet>();
+		Cloudlet[] listshort = sortListshort.toArray(new Cloudlet[largelist.size()]);
+		Cloudlet[] listlarge = sortListlarge.toArray(new Cloudlet[largelist.size()]);
+		//List[] list=new List[clist.size()];
+		
+		int s=0,l=0;
+		int ssize=listshort.length;
+		int lsize=listlarge.length;
+		int bsize=Math.max(ssize,lsize);
+		int csize=Math.min(ssize, lsize);
+		
+	   
+	    for(int i=0,j=0;i<ssize||j<lsize;i++,j++) {
+	    	
+	    	if(i<ssize) {
+	    		
+	    	newList.add(listshort[i]);
+	    
+	    		
+	    	//bindCloudletToVm(listshort[i].getCloudletId(),0);
+	    	}
+	    	if(i<ssize-1) {
+		    	newList.add(listshort[i+1]);
+		    	i++;
+		    	
+		    	//bindCloudletToVm(listshort[i+1].getCloudletId(),0);
+		    	}
+	    	
+	    	if(j<lsize) {
+	    	newList.add(listlarge[j]);
+	    	}
+	    	
+	    }
+	    
+	   
+	    
+	    for(Cloudlet cloudlet:newList) {
+	    	System.out.print("NewList ");
+	    	System.out.println(cloudlet.getCloudletId());
+	    	
+	    }
+		return newList;
+	}
