@@ -1,0 +1,96 @@
+ private static List<Cloudlet> createCloudlet(int userId, int cloudlets, int idShift) throws FileNotFoundException {
+        LinkedList<Cloudlet> list = new LinkedList<Cloudlet>();
+// BufferedReader reader =new BufferedReader(new FileReader("D:\\Edge Computing\\Scheduling Resouce Allocation\\GoCJ_Dataset_1000.txt"));
+   BufferedReader reader =new BufferedReader(new FileReader("C:\\Users\\G-TECH\\Desktop\\schedulingjournal1000.txt"));
+       
+
+       
+        //new:
+       // int minLength=1000;
+       // int maxLenght=2000;
+
+        //cloudlet parameters
+        long fileSize = 300;
+        long outputSize = 300;
+        int pesNumber = 1;
+        double deadline=0;
+        
+        UtilizationModel utilizationModel = new UtilizationModelFull();
+
+        Cloudlet[] cloudlet = new Cloudlet[cloudlets];
+        int tasklength[]= {2103,3421,3535,20581,20232,22726,3843,19259,
+        		3960,6455,7060,19132,16377,18811,7725,9895,16010,13765,11666,10502};
+        int lengthtask[]={100000, 70000, 5000, 1000, 3000, 10000, 90000, 100000,15000,1000,2000, 4000, 20000, 25000,
+    			80000};
+        int runtime[]= {14400,14400,45,154,50,1112,176777,45,353,42,21114,172800,49,42,53,42,657,180,365,354};
+        
+        int task[]= {3000,2000,1000,5000,2000,4000};
+        int paperlength[]= {80000,60000,65000,120000,30000,90000,25000,40000,90000,75000};
+        int paperarrival[]= {0,20,40,60,80,90,120,240,260,380};
+        
+        int length[]= {7000,4000,1000,4000};
+        double arrivaltime[] = {12,1,12,2,3,4,5,6,1,2,7,12,8,16,9,31,18,12,0,2};
+        double arrival=0;
+ /*  for (int i = 0; i < 10; i++) {
+      
+           //long length = (long) (1e3 * (commMatrix[i] + execMatrix[i]));
+            //new
+         //   long length= minLength + (int) (Math.random() * (maxLenght));
+    	
+    			deadline=2*(lengthtask[i]/1000)+arrivaltime[i];
+    	
+            cloudlet[i] = new Cloudlet(idShift + i,paperlength[i], deadline, 0,0,pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel,true);
+            cloudlet[i].setUserId(userId);
+           
+            //cloudlet[i].setSubmissionTime(arrivaltime[i]);
+            System.out.println(paperarrival[i]);
+            list.add(cloudlet[i]);
+        }
+        */
+    
+        String Int_line;
+        Scanner sc=new Scanner(reader);
+
+    /*  try { int i=0;
+        while (sc.hasNextInt()) {
+ 		   
+        	
+		    int length1=sc.nextInt();
+			deadline=200*(length1/1000);
+		    // Print the Integer
+		    cloudlet[i] = new Cloudlet(idShift + i,length1,deadline,arrival,arrival, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
+            cloudlet[i].setUserId(userId);
+            list.add(cloudlet[i]);
+            i++;
+            System.out.println(" Length "+length1+" arrival "+arrival);
+		   
+		}
+		} catch (NumberFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	*/
+        System.out.println(" Checkponit ");
+
+   
+      try { int i=0;
+		while (sc.hasNextInt()) {
+		   
+		    int arrivaltime1=sc.nextInt();
+		    int length1=sc.nextInt();
+		    // Print the Integer
+			deadline=200*(length1/1000)+arrivaltime1;
+		    cloudlet[i] = new Cloudlet(idShift + i,length1,deadline,arrivaltime1,arrivaltime1, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
+            cloudlet[i].setUserId(userId);
+            list.add(cloudlet[i]);
+            i++;
+            System.out.println(" Length "+length1+" arrival "+arrivaltime1);
+		   
+		}
+	} catch (NumberFormatException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	
+        return list;
+    }
